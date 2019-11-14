@@ -22,26 +22,26 @@
         </header>
         <main>
             <div class="left_panels_area">
-                <div class="panel">
-                    <div class="panel_item">
+                <div class="panel" id="tools">
+                    <div class="panel_item tools_item fill" id="fill">
                         <img src="assets/img/icon-fill_bucket.png" alt="fill bucket" srcset="">
                         <p>Pain bucket</p>
                     </div>
-                    <div class="panel_item">
+                    <div class="panel_item tools_item picker" id="picker">
                         <img src="assets/img/icon_choose_color.png" alt="choose color" srcset="">
                         <p>Choose color</p>
                     </div>
                     <div class="line"></div>
-                    <div class="panel_item">
+                    <div class="panel_item tools_item pencil" id="pencil">
                         <img src="assets/img/icon-pencil.png" alt="pencil" srcset="">
                         <p>Pencil</p>
                     </div>
-                    <div class="panel_item disabled">
+                    <div class="panel_item transform disabled" id="transform">
                         <img src="assets/img/icon-transform.png" alt="transform" srcset="">
                         <p>Transform</p>
                     </div>
                 </div>
-                <div class="panel">
+                <div class="panel" id="colors">
                     <div class="panel_item">
                         <div class="panel_item-colored_circle gray"></div>
                         <p>Current color</p>
@@ -82,5 +82,7 @@
     </div>
     <script src="assets/js/frames.js"></script>
     <script src="assets/js/index.js"></script>
+    <script src="assets/js/Panel.js"></script>
+    <script src="assets/js/palette.js"></script>
 </body>
 </html>

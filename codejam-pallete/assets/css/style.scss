@@ -1,4 +1,5 @@
 $grayColor: #eeeeee;
+$activeColor: #cccccc;
 
 
 * {
@@ -110,6 +111,9 @@ main{
         }
     }
 
+    .active{
+        background-color: $activeColor;
+    }
     .disabled{
         &:hover{
             cursor: default;

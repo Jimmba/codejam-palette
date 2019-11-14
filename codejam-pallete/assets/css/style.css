@@ -133,6 +133,10 @@ main {
   font-size: 16px;
 }
 
+.panel .active {
+  background-color: #cccccc;
+}
+
 .panel .disabled {
   opacity: 0.2;
 }
