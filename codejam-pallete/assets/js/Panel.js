@@ -1,8 +1,8 @@
 class Panel{
     activetool="";
     removetool="";
-    activecolor="";
-    prevcolor="";
+    currentColor="";
+    prevColor="";
     tools=["fill", "picker", "pencil"];
 
     constructor(){
@@ -10,21 +10,24 @@ class Panel{
             this.setActiveTool("pencil");
             //localStorage.setItem("activetool", "pencil");
         }
-        if (localStorage.getItem("activecolor")==null){
-            localStorage.setItem("activecolor", "black");
+        if (localStorage.getItem("currentColor")==null){
+            localStorage.setItem("currentColor", document.getElementById("currentColor").value);
         }
-        if (localStorage.getItem("prevcolor")==null){
-            localStorage.setItem("prevcolor", "black");
+        if (localStorage.getItem("prevColor")==null){
+            localStorage.setItem("prevColor", document.getElementById("prevColor").value);
         }
         this.activetool=localStorage.getItem("activetool");
-        this.activecolor=localStorage.getItem("activecolor");
-        this.prevcolor=localStorage.getItem("prevcolor");
-        this.updateStorage();
+        this.currentColor=localStorage.getItem("currentColor");
+        this.prevColor=localStorage.getItem("prevColor");
+        document.getElementById("currentColor").value=this.currentColor;
+        document.getElementById("prevColor").value=this.prevColor;
+        console.log("set prev to "+ this.prevColor);
+
+        this.setStorageTool();
         this.addActiveTool();
-        //this.addToolsListener();
     }
 
-    updateStorage(){
+    setStorageTool(){
         console.log("localStorage.getItem(\"activetool\",\"" + this.activetool +"\")");
         localStorage.setItem("activetool", this.activetool);
     }
@@ -38,6 +41,5 @@ class Panel{
         document.getElementsByClassName(this.removetool)[0].classList.remove("active");
     }
 
-    
 }
 

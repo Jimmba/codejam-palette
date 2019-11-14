@@ -42,21 +42,25 @@
                     </div>
                 </div>
                 <div class="panel" id="colors">
-                    <div class="panel_item">
-                        <div class="panel_item-colored_circle gray"></div>
+                    <div class="panel_item color_item current">
+                        <!-- <div class="panel_item-colored_circle gray"></div> -->
+                        <input type="color" name="current" value="#ffffff" id="currentColor">
                         <p>Current color</p>
                     </div>
-                    <div class="panel_item">
-                        <div class="panel_item-colored_circle green"></div>
+                    <div class="panel_item color_item prev" id="prev">
+                        <!-- <div class="panel_item-colored_circle green"></div> -->
+                        <input type="color" name="prev" value="#00ff00" id="prevColor" disabled>
                         <p>Prev color</p>
                     </div>
                     <div class="line"></div>
-                    <div class="panel_item">
-                        <div class="panel_item-colored_circle red"></div>
+                    <div class="panel_item color_item red" id="red">
+                        <!-- <div class="panel_item-colored_circle red"></div> -->
+                        <input type="color" name="red" value="#ff0000" id="redColor" disabled>
                         <p>Red</p>
                     </div>
-                    <div class="panel_item">
-                        <div class="panel_item-colored_circle blue"></div>
+                    <div class="panel_item color_item blue" id="blue">
+                        <!-- <div class="panel_item-colored_circle blue"></div> -->
+                        <input type="color" name="blue" value="#0000ff" id="blueColor" disabled>
                         <p>Blue</p>
                     </div>
                 </div>
