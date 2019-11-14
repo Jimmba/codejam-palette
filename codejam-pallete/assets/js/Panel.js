@@ -19,13 +19,13 @@ class Panel{
         this.activetool=localStorage.getItem("activetool");
         this.activecolor=localStorage.getItem("activecolor");
         this.prevcolor=localStorage.getItem("prevcolor");
-        this.addActiveTool();
         this.updateStorage();
+        this.addActiveTool();
         //this.addToolsListener();
     }
 
     updateStorage(){
-        console.log("updateStorage " + this.activetool);
+        console.log("localStorage.getItem(\"activetool\",\"" + this.activetool +"\")");
         localStorage.setItem("activetool", this.activetool);
     }
 
@@ -38,14 +38,6 @@ class Panel{
         document.getElementsByClassName(this.removetool)[0].classList.remove("active");
     }
 
-    changeTool(){
-        let key=(this.getAttribute("id"));
-        //console.log(key);
-        panel.removetool=panel.activetool;
-        panel.activetool=key;
-        panel.updateStorage();
-        panel.removeActiveTool();
-        panel.addActiveTool();
-    }
+    
 }
 
