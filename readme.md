@@ -1,0 +1,1 @@
+[codejam-pallete](https://jimmba.github.io/codejam-pallete/codejam-pallete/index.html)

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/fonts.css">
+    <title>Codejam Canvas</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <nav>
+                <div class="left_side">
+                    <img src="assets/img/leftMenuButton.png" alt="leftMenuButton">
+                    <h1>Codejam-Canvas</h1>
+                </div>
+                <div class="right_side"><img src="assets/img/rightMenuButton.png" alt="rightMenuButton"></div>
+            </nav>
+        </header>
+        <main>
+            <div class="left_panels_area">
+                <div class="panel">
+                    <div class="panel_item">
+                        <img src="assets/img/icon-fill_bucket.png" alt="fill bucket" srcset="">
+                        <p>Pain bucket</p>
+                    </div>
+                    <div class="panel_item">
+                        <img src="assets/img/icon_choose_color.png" alt="choose color" srcset="">
+                        <p>Choose color</p>
+                    </div>
+                    <div class="line"></div>
+                    <div class="panel_item">
+                        <img src="assets/img/icon-pencil.png" alt="pencil" srcset="">
+                        <p>Pencil</p>
+                    </div>
+                    <div class="panel_item disabled">
+                        <img src="assets/img/icon-transform.png" alt="transform" srcset="">
+                        <p>Transform</p>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel_item">
+                        <div class="panel_item-colored_circle gray"></div>
+                        <p>Current color</p>
+                    </div>
+                    <div class="panel_item">
+                        <div class="panel_item-colored_circle green"></div>
+                        <p>Prev color</p>
+                    </div>
+                    <div class="line"></div>
+                    <div class="panel_item">
+                        <div class="panel_item-colored_circle red"></div>
+                        <p>Red</p>
+                    </div>
+                    <div class="panel_item">
+                        <div class="panel_item-colored_circle blue"></div>
+                        <p>Blue</p>
+                    </div>
+                </div>
+            </div>
+            <div class="draw_area">
+                <canvas id="canvas"></canvas>
+                <!-- <img id="draw_img" src="assets/data/image.png" alt="picture"> -->
+            </div>
+            <div class="right_panels_area">
+                <div class="panel">
+                    <div class="panel_item" onclick="(paint('frame', frame_4x4))">
+                        <p>4x4</p>
+                    </div>
+                    <div class="panel_item" onclick="(paint('frame', frame_32x32))">
+                        <p>32x32</p>
+                    </div>
+                    <div class="panel_item" onclick="(paint('image', null))">
+                        <p>Picture</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="assets/js/frames.js"></script>
+    <script src="assets/js/index.js"></script>
+</body>
+</html>
