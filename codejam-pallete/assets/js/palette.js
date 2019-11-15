@@ -1,18 +1,5 @@
 let panel=new Panel();
 
-// document.getElementById("tools").addEventListener('click', function(e){
-//     console.log(e.target);
-// });
-
-
-// function addActiveTool(key){
-//     document.getElementsByClassName("active_item" + key)[0].classList.add("active_btn");
-// }
-
-// function removeActiveTool(key){
-//     document.getElementsByClassName("keyboard_btn_" + key)[0].classList.remove("active_btn");
-// }
-
 //  add panel listener
 let elem=document.getElementsByClassName("tools_item");
 for (let i=0; i<panel.tools.length; i++){
@@ -29,6 +16,8 @@ function changeTool(e){
     panel.addActiveTool();
 }
 
+/********* COLOR PANEL *********/
+// add color listener
 document.getElementById("currentColor").addEventListener('change', function(){
     let newColor=document.getElementById("currentColor").value;
     updateColor(newColor);
@@ -60,6 +49,4 @@ function updateColor(newColor){
     localStorage.setItem("currentColor", document.getElementById("currentColor").value);
     localStorage.setItem("prevColor", document.getElementById("prevColor").value);
 }
-
-//  changeColor
-// document.getElementById("current").value="#ffaa00";
+/********* COLOR PANEL *********/
