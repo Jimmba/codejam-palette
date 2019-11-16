@@ -26,27 +26,29 @@ document.getElementById("currentColor").addEventListener('change', function(){
 document.getElementById("prev").addEventListener('mouseup', function(){
     let color=(document.getElementById("prevColor").value);
     // console.log(color);
-    updateColor(color);
+    updateColor(color, true);
 });
 
 document.getElementById("red").addEventListener('mouseup', function(){
     let color=(document.getElementById("redColor").value);
-    updateColor(color);
+    updateColor(color, true);
 });
 
 document.getElementById("blue").addEventListener('mouseup', function(){
     let color=(document.getElementById("blueColor").value);
-    updateColor(color);
+    updateColor(color, true);
 });
 
 
-function updateColor(newColor){
-    panel.prevColor=panel.currentColor;
+function updateColor(newColor, toUpdatePrevColor=false){
+    if (toUpdatePrevColor){
+        panel.prevColor=panel.currentColor;
+        document.getElementById("prevColor").value=panel.prevColor;
+        localStorage.setItem("prevColor", document.getElementById("prevColor").value);
+    }
     panel.currentColor=newColor;
     document.getElementById("currentColor").value=panel.currentColor;
-    document.getElementById("prevColor").value=panel.prevColor;
     //console.log("change " + panel.prevColor + " to " + panel.currentColor);
     localStorage.setItem("currentColor", document.getElementById("currentColor").value);
-    localStorage.setItem("prevColor", document.getElementById("prevColor").value);
 }
 /********* COLOR PANEL *********/

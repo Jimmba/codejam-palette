@@ -1,16 +1,22 @@
 let pixel_size=128;
 let mouseIsDown=false;
+let mouseFirstAction=true;
+let x0=x1=y0=y1=null;
+
+let canvas=document.getElementById('canvas');
+let ctx=canvas.getContext('2d');
+//ctx.fillStyle=panel.currentColor;
 
 drawbackground(frame_4x4, false); //default picture
 
 function drawbackground(frame, isImage){
-    let canvas=document.getElementById('canvas');
+    // let canvas=document.getElementById('canvas');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     let canvas_length=512; //width and height of canvas for calculate item
     
     if(canvas.getContext){
-      var ctx=canvas.getContext('2d');
+    //   var ctx=canvas.getContext('2d');
       if (isImage){        
           ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); 
       }else{
@@ -31,7 +37,7 @@ function drawbackground(frame, isImage){
 }
 
 function paint(type, frame){
-    //pixel_size=4;
+    pixel_size=16;
     if (type=="image"){
         var img = new Image();
         img.src = '../codejam-pallete/assets/data/image.png';
@@ -47,18 +53,37 @@ function paint(type, frame){
 /*******************LISTENERS*******************/
 document.getElementById("canvas").addEventListener('mousemove', mousemove);
 document.getElementById("canvas").addEventListener('mousedown', mousedown);
-document.getElementById("canvas").addEventListener('mouseup',()=>mouseIsDown=false);
-document.getElementById("canvas").addEventListener('mouseout',()=>mouseIsDown=false);
+document.getElementById("canvas").addEventListener('mouseup', clearmouse);
+document.getElementById("canvas").addEventListener('mouseout', clearmouse);
 
 /*******************MOUSE ACTIONS*******************/
 function mousedown(e){
     mouseIsDown=true;
+    // x0 = e.offsetX;
+    // y0 = e.offsetY;
     getAction(e);
 }
 
 function mousemove(e){
     if(!mouseIsDown)return;
     getAction(e);
+}
+
+// function mouseup(){
+//     clearmouse();
+// }
+
+// function mouseout(){
+//     clearmouse();
+// }
+
+function clearmouse(){
+    mouseIsDown=false;
+    x0=null;
+    x1=null;
+    y0=null;
+    y1=null;
+    mouseFirstAction=true;
 }
 
 /*******************PANEL FUNCTIONS*******************/
@@ -75,36 +100,72 @@ function getAction(e){
 
 function draw(e){
     //console.log(e);
-    let canvas=document.getElementById('canvas');
-    let ctx=canvas.getContext('2d');
+    // let canvas=document.getElementById('canvas');
+    // let ctx=canvas.getContext('2d');
     ctx.fillStyle=panel.currentColor;
-    let x = e.offsetX;
-    let y = e.offsetY;
-    let row= Math.floor(x/pixel_size);
-    let column= Math.floor(y/pixel_size);
-    //console.log(row+" "+column);
-    console.log(pixel_size);
-    ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
+    //debugger;
+    if (x0==null && y0==null){
+        x0 = e.offsetX;
+        y0 = e.offsetY;    
+        let row= Math.floor(x0/pixel_size);
+        let column= Math.floor(y0/pixel_size);
+        //console.log(x0+" "+y0);
+        //console.log(pixel_size);
+        ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
+    }else{
+        x1=e.offsetX;
+        y1=e.offsetY;
+        //console.log(x0+" x0, " + y0 + " y0, " + x1 + " x1, " + y1 + " y1");
+        useBresenhams(x0,y0,x1,y1);
+    }
 }
 
+function useBresenhams(x0, y0, x1, y1){
+   var dx = Math.abs(x1-x0);
+   var dy = Math.abs(y1-y0);
+   var sx = (x0 < x1) ? 1 : -1;
+   var sy = (y0 < y1) ? 1 : -1;
+   var err = dx-dy;
+
+   while(true){
+     pixel(x0,y0);  // Do what you need to for this
+
+     if ((x0==x1) && (y0==y1)) break;
+     var e2 = 2*err;
+     if (e2 >-dy){ err -= dy; x0  += sx; }
+     if (e2 < dx){ err += dx; y0  += sy; }
+   }
+
+}
+
+function pixel(x,y){
+    // let canvas=document.getElementById('canvas');
+    // let ctx=canvas.getContext('2d');
+    // ctx.fillStyle=panel.currentColor;
+    let row= Math.floor(x/pixel_size);
+    let column= Math.floor(y/pixel_size);
+    ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
+    x0=x1;
+    y0=y1;
+}
+
+
 function getColorWithPicker(e){
-    
-    let canvas=document.getElementById('canvas');
-    let ctx=canvas.getContext('2d');
-    ctx.fillStyle=panel.currentColor;
+    // let canvas=document.getElementById('canvas');
+    // let ctx=canvas.getContext('2d');
+    // ctx.fillStyle=panel.currentColor;
     let x = e.offsetX;
-    let y = e.offsetY;
-    //imgData получает цвет по заданным координатам. Их нужно высчитать.
-    let imgData=ctx.getImageData(x, y, x, y);
-    let color=imgData.data;
-    let newColor="#";
-    for (i=0; i<3; i++){
-        let hex=(color[i].toString(16));
-        if (hex.length==1){
-            newColor+="0";
+        let y = e.offsetY;
+        let imgData=ctx.getImageData(x, y, x, y);
+        let color=imgData.data;
+        let newColor="#";
+        for (i=0; i<3; i++){
+            let hex=(color[i].toString(16));
+            if (hex.length==1){
+                newColor+="0";
+            }
+            newColor+=hex;
         }
-        newColor+=hex;
-    }
-    updateColor(newColor);
-    
+        updateColor(newColor, mouseFirstAction);
+        mouseFirstAction=false;
 }
