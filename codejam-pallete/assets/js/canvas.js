@@ -56,6 +56,7 @@ document.getElementById("canvas").addEventListener('mousemove', mousemove);
 document.getElementById("canvas").addEventListener('mousedown', mousedown);
 document.getElementById("canvas").addEventListener('mouseup', clearmouse);
 document.getElementById("canvas").addEventListener('mouseout', clearmouse);
+document.addEventListener('keyup', selectTool);
 
 /*******************MOUSE ACTIONS*******************/
 function mousedown(e){
@@ -86,7 +87,18 @@ function clearmouse(){
     y1=null;
     mouseFirstAction=true;
 }
-
+/*******************KEYBOARD FUNCTIONS*******************/
+function selectTool(e){
+    //console.log(e.code);
+    switch (e.code){
+        case "KeyB": keyboardChangeTool("fill"); //fill bucket
+            break;
+        case "KeyP": keyboardChangeTool("pencil");//pencil
+            break;
+        case "KeyC": keyboardChangeTool("picker");//picker
+            break;
+    }
+}
 /*******************PANEL FUNCTIONS*******************/
 function getAction(e){
     switch(panel.activetool){

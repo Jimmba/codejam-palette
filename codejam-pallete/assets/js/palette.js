@@ -3,11 +3,19 @@ let panel=new Panel();
 //  add panel listener
 let elem=document.getElementsByClassName("tools_item");
 for (let i=0; i<panel.tools.length; i++){
-    elem[i].addEventListener('click', changeTool);
+    elem[i].addEventListener('click', mouseChangeTool);
 }
 
-function changeTool(e){
+function mouseChangeTool(){
     let key=(this.getAttribute("id"));
+    changeTool(key);
+}
+
+function keyboardChangeTool(key){
+    changeTool(key);
+}
+
+function changeTool(key){
     //console.log(key);
     panel.removetool=panel.activetool;
     panel.activetool=key;
