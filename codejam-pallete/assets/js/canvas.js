@@ -1,3 +1,4 @@
+let canvas_length=512; //default
 let pixel_size=128;
 let mouseIsDown=false;
 let mouseFirstAction=true;
@@ -5,7 +6,6 @@ let x0=x1=y0=y1=null;
 
 let canvas=document.getElementById('canvas');
 let ctx=canvas.getContext('2d');
-//ctx.fillStyle=panel.currentColor;
 
 drawbackground(frame_4x4, false); //default picture
 
@@ -13,7 +13,7 @@ function drawbackground(frame, isImage){
     // let canvas=document.getElementById('canvas');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    let canvas_length=512; //width and height of canvas for calculate item
+    //canvas_length=512; //width and height of canvas for calculate item
     
     if(canvas.getContext){
     //   var ctx=canvas.getContext('2d');
@@ -34,6 +34,7 @@ function drawbackground(frame, isImage){
           });
         }
     }
+    ctx.fillStyle=panel.currentColor;
 }
 
 function paint(type, frame){
@@ -93,11 +94,12 @@ function getAction(e){
         break;
         case "picker": return getColorWithPicker(e);
         break;
-        case "fill": ;
+        case "fill": return fill(e);
         break;
     }
 }
 
+/*******************draw*******************/
 function draw(e){
     //console.log(e);
     // let canvas=document.getElementById('canvas');
@@ -148,7 +150,8 @@ function pixel(x,y){
     x0=x1;
     y0=y1;
 }
-
+/*******************draw*******************/
+/*******************picker*******************/
 
 function getColorWithPicker(e){
     // let canvas=document.getElementById('canvas');
@@ -169,3 +172,15 @@ function getColorWithPicker(e){
         updateColor(newColor, mouseFirstAction);
         mouseFirstAction=false;
 }
+/*******************picker*******************/
+/*******************fill bucket*******************/
+function fill(){
+    ctx.fillStyle=panel.currentColor;
+    let size = canvas_length/pixel_size;
+    for (let row=0; row<size; row++){
+        for (let column=0; column<size; column++){
+            ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
+        }
+    }
+}
+/*******************fill bucket*******************/
