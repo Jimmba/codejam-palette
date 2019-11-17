@@ -1,0 +1,25 @@
+{
+  "name": "codejam-palette",
+  "version": "1.0.0",
+  "description": "[codejam-pallete](https://jimmba.github.io/codejam-pallete/codejam-pallete/index.html)",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jimmba/codejam-palette.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jimmba/codejam-palette/issues"
+  },
+  "homepage": "https://github.com/Jimmba/codejam-palette#readme"
+}

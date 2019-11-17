@@ -41,6 +41,5 @@ class Panel{
         //console.log("remove "+this.removeTool);
         document.getElementsByClassName(this.removeTool)[0].classList.remove("active");
     }
-
 }
 

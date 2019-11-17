@@ -1,85 +1,67 @@
-let canvas_length=512; //default
-let pixel_size=128;
-let mouseIsDown=false;
-let mouseFirstAction=true;
-let x0=x1=y0=y1=null;
-let canvasSize; //4x4, 16x16 - single number
-let sizes=[4,8,16,32,64,128,256,512];
+const canvasLength = 512; // default
+let pixelSize = 128;
+let mouseIsDown = false;
+let mouseFirstAction = true;
+let x0 = null;
+let x1 = null;
+let y0 = null;
+let y1 = null;
+let canvasSize; // 4x4, 16x16 - single number
+const sizes = [4, 8, 16, 32, 64, 128, 256, 512];
 
 
 window.onbeforeunload = function () {
-    localStorage.setItem("canvasImage", this.canvas.toDataURL());
-    localStorage.setItem("canvasSize", canvasSize);
+  localStorage.setItem('canvasImage', this.canvas.toDataURL());
+  localStorage.setItem('canvasSize', canvasSize);
 };
 
 
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-let canvas=document.getElementById('canvas');
-let ctx=canvas.getContext('2d');
+function clearCanvas() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  // localStorage.removeItem("canvasImage");
+}
 clearCanvas();
 
-function clearCanvas(){
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    //localStorage.removeItem("canvasImage");
+// getSize
+canvasSize = localStorage.getItem('canvasSize');
+if (canvasSize === null) {
+  canvasSize = 4;
 }
 
-//getSize
-canvasSize=localStorage.getItem("canvasSize")
-if (canvasSize==null){
-    canvasSize=4;
+// get image from localStorage
+if (localStorage.getItem('canvasImage')) {
+  const dataURL = localStorage.getItem('canvasImage');
+  const img = new Image();
+  img.src = dataURL;
+  img.onload = function () {
+    ctx.drawImage(img, 0, 0);
+  };
 }
 
-//get image from localStorage
-if(localStorage.getItem("canvasImage")){
-    let dataURL = localStorage.getItem("canvasImage");
-    let img = new Image;
-    img.src = dataURL;
-    img.onload = function () {
-        ctx.drawImage(img, 0, 0);
-    };
+function activeSize() {
+  for (let i = 0; i < sizes.length; i += 1) {
+    if (sizes[i] - canvasSize === 0) {
+      document.getElementsByClassName('panel_item_size')[i].classList.add('active');
+    } else {
+      document.getElementsByClassName('panel_item_size')[i].classList.remove('active');
+    }
+  }
+}
+
+function setCanvas(size) {
+  console.log(size);
+  canvasSize = size;
+  pixelSize = canvasLength / canvasSize;
+
+  activeSize();
 }
 
 setCanvas(canvasSize);
 
-function setCanvas(size){
-    console.log(size);
-    canvasSize=size;
-    pixel_size=canvas_length/canvasSize;
-
-    activeSize();
-}
-
-function activeSize(){
-    for (let i=0; i<sizes.length; i++){
-        if(sizes[i]-canvasSize==0){
-            document.getElementsByClassName("panel_item_size")[i].classList.add("active");
-        }else{
-            document.getElementsByClassName("panel_item_size")[i].classList.remove("active");
-
-        }
-    }
-}
-
-/*******************LISTENERS*******************/
-document.getElementById("canvas").addEventListener('mousemove', mousemove);
-document.getElementById("canvas").addEventListener('mousedown', mousedown);
-document.getElementById("canvas").addEventListener('mouseup', clearmouse);
-document.getElementById("canvas").addEventListener('mouseout', clearmouse);
-document.addEventListener('keyup', selectTool);
-
-/*******************MOUSE ACTIONS*******************/
-function mousedown(e){
-    mouseIsDown=true;
-    // x0 = e.offsetX;
-    // y0 = e.offsetY;
-    getAction(e);
-}
-
-function mousemove(e){
-    if(!mouseIsDown)return;
-    getAction(e);
-}
 
 // function mouseup(){
 //     clearmouse();
@@ -89,338 +71,284 @@ function mousemove(e){
 //     clearmouse();
 // }
 
-function clearmouse(){
-    mouseIsDown=false;
-    x0=null;
-    x1=null;
-    y0=null;
-    y1=null;
-    mouseFirstAction=true;
-    // if (panel.activeTool=="paint"){
-    //     localStorage.setItem(canvasName, canvas.toDataURL());
-    // }
+function clearmouse() {
+  mouseIsDown = false;
+  x0 = null;
+  x1 = null;
+  y0 = null;
+  y1 = null;
+  mouseFirstAction = true;
+  // if (panel.activeTool==="paint"){
+  //     localStorage.setItem(canvasName, canvas.toDataURL());
+  // }
 }
-/*******************KEYBOARD FUNCTIONS*******************/
-function selectTool(e){
-    //console.log(e.code);
-    switch (e.code){
-        case "KeyB": keyboardChangeTool("fill"); //fill bucket
-            break;
-        case "KeyP": keyboardChangeTool("pencil");//pencil
-            break;
-        case "KeyC": keyboardChangeTool("picker");//picker
-            break;
+
+/** *****************draw****************** */
+function pixel(x, y) {
+  // let canvas=document.getElementById('canvas');
+  // let ctx=canvas.getContext('2d');
+  // ctx.fillStyle=panel.currentColor;
+  const row = Math.floor(x / pixelSize);
+  const column = Math.floor(y / pixelSize);
+  ctx.fillRect(row * pixelSize, column * pixelSize, pixelSize, pixelSize);
+  x0 = x1;
+  y0 = y1;
+}
+
+function useBresenhams(ox0, oy0, ox1, oy1) {
+  const dx = Math.abs(ox1 - ox0);
+  const dy = Math.abs(oy1 - oy0);
+  const sx = (ox0 < ox1) ? 1 : -1;
+  const sy = (oy0 < oy1) ? 1 : -1;
+  let err = dx - dy;
+
+  while (true) {
+    pixel(ox0, oy0); // Do what you need to for this
+
+    if ((ox0 === ox1) && (oy0 === oy1)) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; ox0 += sx; }
+    if (e2 < dx) { err += dx; oy0 += sy; }
+  }
+}
+
+function draw(e) {
+  // console.log(e);
+  // let canvas=document.getElementById('canvas');
+  // let ctx=canvas.getContext('2d');
+  ctx.fillStyle = panel.currentColor;
+  // debugger;
+  if (x0 === null && y0 === null) {
+    x0 = e.offsetX;
+    y0 = e.offsetY;
+    const row = Math.floor(x0 / pixelSize);
+    const column = Math.floor(y0 / pixelSize);
+    // console.log(x0+" "+y0);
+    // console.log(pixelSize);
+    ctx.fillRect(row * pixelSize, column * pixelSize, pixelSize, pixelSize);
+  } else {
+    x1 = e.offsetX;
+    y1 = e.offsetY;
+    // console.log(x0+" x0, " + y0 + " y0, " + x1 + " x1, " + y1 + " y1");
+    useBresenhams(x0, y0, x1, y1);
+  }
+}
+
+/** *****************draw****************** */
+/** *****************picker****************** */
+
+function getColorWithPicker(e) {
+  // let canvas=document.getElementById('canvas');
+  // let ctx=canvas.getContext('2d');
+  // ctx.fillStyle=panel.currentColor;
+  const x = e.offsetX;
+  const y = e.offsetY;
+  const imgData = ctx.getImageData(x, y, x, y);
+  const color = imgData.data;
+  return color;
+}
+
+function colorToHex(color) {
+  let newColor = '#';
+  for (let i = 0; i < 3; i += 1) {
+    const hex = (color[i].toString(16));
+    if (hex.length === 1) {
+      newColor += '0';
     }
-}
-/*******************PANEL FUNCTIONS*******************/
-function getAction(e){
-    switch(panel.activeTool){
-        case "pencil": return draw(e);
-        break;
-        case "picker": return changeColorWithPicker(e);
-        break;
-        case "fill": return fill(e);
-        break;
-    }
+    newColor += hex;
+  }
+  return newColor;
 }
 
-/*******************draw*******************/
-function draw(e){
-    //console.log(e);
-    // let canvas=document.getElementById('canvas');
-    // let ctx=canvas.getContext('2d');
-    ctx.fillStyle=panel.currentColor;
-    //debugger;
-    if (x0==null && y0==null){
-        x0 = e.offsetX;
-        y0 = e.offsetY;    
-        let row= Math.floor(x0/pixel_size);
-        let column= Math.floor(y0/pixel_size);
-        //console.log(x0+" "+y0);
-        //console.log(pixel_size);
-        ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
-    }else{
-        x1=e.offsetX;
-        y1=e.offsetY;
-        //console.log(x0+" x0, " + y0 + " y0, " + x1 + " x1, " + y1 + " y1");
-        useBresenhams(x0,y0,x1,y1);
-    }
+function changeColorWithPicker(e) {
+  const newColor = getColorWithPicker(e);
+  updateColor(colorToHex(newColor), mouseFirstAction);
+  mouseFirstAction = false;
 }
 
-function useBresenhams(x0, y0, x1, y1){
-   var dx = Math.abs(x1-x0);
-   var dy = Math.abs(y1-y0);
-   var sx = (x0 < x1) ? 1 : -1;
-   var sy = (y0 < y1) ? 1 : -1;
-   var err = dx-dy;
+/** *****************picker****************** */
+/** *****************fill bucket****************** */
+function fill(e) {
+  // ctx.fillStyle=panel.currentColor;
+  // let size = canvasLength/pixelSize;
+  // for (let row=0; row<size; row++){
+  //     for (let column=0; column<size; column++){
+  //         ctx.fillRect(row*pixelSize, column*pixelSize, pixelSize, pixelSize);
+  //     }
+  // }
 
-   while(true){
-     pixel(x0,y0);  // Do what you need to for this
+  // filler
 
-     if ((x0==x1) && (y0==y1)) break;
-     var e2 = 2*err;
-     if (e2 >-dy){ err -= dy; x0  += sx; }
-     if (e2 < dx){ err += dx; y0  += sy; }
-   }
+  function CanvasFloodFiller() {
+  // Ширина и высота канвы
+    let cWidth = -1;
+    let cHeight = -1;
 
-}
-
-function pixel(x,y){
-    // let canvas=document.getElementById('canvas');
-    // let ctx=canvas.getContext('2d');
-    // ctx.fillStyle=panel.currentColor;
-    let row= Math.floor(x/pixel_size);
-    let column= Math.floor(y/pixel_size);
-    ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
-    x0=x1;
-    y0=y1;
-}
-/*******************draw*******************/
-/*******************picker*******************/
-function changeColorWithPicker(e){
-    let newColor=getColorWithPicker(e);
-    updateColor(colorToHex(newColor), mouseFirstAction);
-    mouseFirstAction=false;
-}
-
-function getColorWithPicker(e){
-    // let canvas=document.getElementById('canvas');
-    // let ctx=canvas.getContext('2d');
-    // ctx.fillStyle=panel.currentColor;
-    let x = e.offsetX;
-    let y = e.offsetY;
-    let imgData=ctx.getImageData(x, y, x, y);
-    let color=imgData.data;
-    return color;
-}
-
-function colorToHex(color){
-    let newColor="#";
-    for (i=0; i<3; i++){
-        let hex=(color[i].toString(16));
-        if (hex.length==1){
-            newColor+="0";
-        }
-        newColor+=hex;
-    }
-    return newColor;
-}
-
-/*******************picker*******************/
-/*******************fill bucket*******************/
-function fill(e){
-    // ctx.fillStyle=panel.currentColor;
-    // let size = canvas_length/pixel_size;
-    // for (let row=0; row<size; row++){
-    //     for (let column=0; column<size; column++){
-    //         ctx.fillRect(row*pixel_size, column*pixel_size, pixel_size, pixel_size);
-    //     }
-    // }
-    let filler=new CanvasFloodFiller();
-    let rgbaColor=getCurrentColorObj(panel.currentColor);//rgba obj
-    //console.log(color)
-    //console.log(rgbaColor);
-    filler.floodFill(ctx, e.offsetX, e.offsetY, rgbaColor);
-
-}
-
-function getCurrentColorObj(color){
-    return{
-        r: parseInt(color.slice(1, 3), 16),
-        g: parseInt(color.slice(3, 5), 16),
-        b: parseInt(color.slice(5, 7), 16),
-        a: 255
-    }
-}
-
-// filler
-
-function CanvasFloodFiller()
-{
-    // Ширина и высота канвы
-    var _cWidth = -1;
-    var _cHeight = -1;
- 
     // Заменяемый цвет
-    var _rR = 0;
-    var _rG = 0;
-    var _rB = 0;
-    var _rA = 0;
- 
+    let rR = 0;
+    let rG = 0;
+    let rB = 0;
+    let rA = 0;
+
     // Цвет закраски
-    var _nR = 0;
-    var _nG = 0;
-    var _nB = 0;
-    var _nA = 0;
- 
-    var _data = null;
- 
+    let nR = 0;
+    let nG = 0;
+    let nB = 0;
+    let nA = 0;
+
+    let data = null;
+
     /*
      * Получить точку из данных
-     **/
-    var getDot = function(x, y)
-    {
-        // Точка: y * ширину_канвы * 4 + (x * 4)
-        var dstart = (y * _cWidth * 4) + (x * 4);
-        var dr = _data[dstart];
-        var dg = _data[dstart + 1];
-        var db = _data[dstart + 2];
-        var da = _data[dstart + 3];
- 
-        return {r: dr, g: dg, b: db, a: da};
-    }
- 
+     * */
+    const getDot = function (x, y) {
+    // Точка: y * ширину_канвы * 4 + (x * 4)
+      const dstart = (y * cWidth * 4) + (x * 4);
+      const dr = data[dstart];
+      const dg = data[dstart + 1];
+      const db = data[dstart + 2];
+      const da = data[dstart + 3];
+
+      return {
+        r: dr, g: dg, b: db, a: da,
+      };
+    };
+
     /*
      * Пиксель по координатам x,y - готовый к заливке?
-     **/
-    var isNeededPixel = function(x, y)
-    {
-        var dstart = (y * _cWidth * 4) + (x * 4);
-        var dr = _data[dstart];
-        var dg = _data[dstart + 1];
-        var db = _data[dstart + 2];
-        var da = _data[dstart + 3];
- 
-        return (dr == _rR && dg == _rG && db == _rB && da == _rA);
-    }
- 
+     * */
+    const isNeededPixel = function (x, y) {
+      const dstart = (y * cWidth * 4) + (x * 4);
+      const dr = data[dstart];
+      const dg = data[dstart + 1];
+      const db = data[dstart + 2];
+      const da = data[dstart + 3];
+
+      return (dr === rR && dg === rG && db === rB && da === rA);
+    };
+
     /*
      * Найти левый пиксель, по пути закрашивая все попавшиеся
-     **/
-    var findLeftPixel = function(x, y)
-    {
-        // Крутим пикселы влево, заодно красим. Возвращаем левую границу.
-        // Во избежание дубляжа и ошибок, findLeftPixel НЕ красит текущий
-        // пиксел! Это сделает обязательный поиск вправо.
-        var lx = x - 1;
-        var dCoord = (y * _cWidth * 4) + (lx * 4);
- 
-        while (lx >= 0 && _data[dCoord] == _rR && _data[dCoord + 1] == _rG &&
-            _data[dCoord + 2] == _rB && _data[dCoord + 3] == _rA)
-        {
-            _data[dCoord] = _nR;
-            _data[dCoord + 1] = _nG;
-            _data[dCoord + 2] = _nB;
-            _data[dCoord + 3] = _nA;
- 
-            lx--;
-            dCoord -= 4;
-        }
- 
-        return lx + 1;
-    }
- 
+     * */
+    const findLeftPixel = function (x, y) {
+    // Крутим пикселы влево, заодно красим. Возвращаем левую границу.
+    // Во избежание дубляжа и ошибок, findLeftPixel НЕ красит текущий
+    // пиксел! Это сделает обязательный поиск вправо.
+      let lx = x - 1;
+      let dCoord = (y * cWidth * 4) + (lx * 4);
+
+      while (lx >= 0 && data[dCoord] === rR && data[dCoord + 1] === rG
+            && data[dCoord + 2] === rB && data[dCoord + 3] === rA) {
+        data[dCoord] = nR;
+        data[dCoord + 1] = nG;
+        data[dCoord + 2] = nB;
+        data[dCoord + 3] = nA;
+
+        lx -= 1;
+        dCoord -= 4;
+      }
+
+      return lx + 1;
+    };
+
     /*
      * Найти правый пиксель, по пути закрашивая все попавшиеся
-     **/
-    var findRightPixel = function(x, y)
-    {
-        var rx = x;
-        var dCoord = (y * _cWidth * 4) + (x * 4);
- 
-        while (rx < _cWidth && _data[dCoord] == _rR && _data[dCoord + 1] == _rG &&
-            _data[dCoord + 2] == _rB && _data[dCoord + 3] == _rA)
-        {
-            _data[dCoord] = _nR;
-            _data[dCoord + 1] = _nG;
-            _data[dCoord + 2] = _nB;
-            _data[dCoord + 3] = _nA;
- 
-            rx++;
-            dCoord += 4;
-        }
- 
-        return rx - 1;
-    }
- 
+     * */
+    const findRightPixel = function (x, y) {
+      let rx = x;
+      let dCoord = (y * cWidth * 4) + (x * 4);
+
+      while (rx < cWidth && data[dCoord] === rR && data[dCoord + 1] === rG
+            && data[dCoord + 2] === rB && data[dCoord + 3] === rA) {
+        data[dCoord] = nR;
+        data[dCoord + 1] = nG;
+        data[dCoord + 2] = nB;
+        data[dCoord + 3] = nA;
+
+        rx += 1;
+        dCoord += 4;
+      }
+
+      return rx - 1;
+    };
+
     /*
      * Эффективная (строчная) заливка
-     **/
-    var effectiveFill = function(cx, cy)
-    {
-        var lineQueue = new Array();
- 
-        var fx1 = findLeftPixel(cx, cy);
-        var fx2 = findRightPixel(cx, cy);
- 
-        lineQueue.push({x1: fx1, x2: fx2, y: cy});
- 
-        while (lineQueue.length > 0)
-        {
-            var cLine = lineQueue.shift();
-            var nx1 = cLine.x1;
-            var nx2 = cLine.x1;
-            var currx = nx2;
- 
-            // Сперва для первого пиксела, если верхний над ним цвет подходит,
-            // пускаем поиск левой границы.
-            // Можно искать вверх?
-            if (cLine.y > 0)
-            {
-                // Сверху строка может идти левее текущей?
-                if (isNeededPixel(cLine.x1, cLine.y - 1))
-                {
-                    // Ищем в том числе влево
-                    nx1 = findLeftPixel(cLine.x1, cLine.y - 1);
-                    nx2 = findRightPixel(cLine.x1, cLine.y - 1);
-                    lineQueue.push({x1: nx1, x2: nx2, y: cLine.y - 1});
-                }
- 
-                currx = nx2;
-                // Добираем недостающее, ищем только вправо, но пока не
-                // доползли так или иначе далее края текущей строки
-                while (cLine.x2 >= nx2 && currx <= cLine.x2 && currx < (_cWidth - 1))
-                {
-                    currx++;
- 
-                    if (isNeededPixel(currx, cLine.y - 1))
-                    {
-                        // Сохраняем найденный отрезок
-                        nx1 = currx;
-                        nx2 = findRightPixel(currx, cLine.y - 1);
-                        lineQueue.push({x1: nx1, x2: nx2, y: cLine.y - 1});
-                        // Прыгаем далее найденного
-                        currx = nx2;
-                    }
-                }
+     * */
+    const effectiveFill = function (cx, cy) {
+      const lineQueue = [];
+
+      const fx1 = findLeftPixel(cx, cy);
+      const fx2 = findRightPixel(cx, cy);
+
+      lineQueue.push({ x1: fx1, x2: fx2, y: cy });
+
+      while (lineQueue.length > 0) {
+        const cLine = lineQueue.shift();
+        let nx1 = cLine.x1;
+        let nx2 = cLine.x1;
+        let currx = nx2;
+
+        // Сперва для первого пиксела, если верхний над ним цвет подходит,
+        // пускаем поиск левой границы.
+        // Можно искать вверх?
+        if (cLine.y > 0) {
+        // Сверху строка может идти левее текущей?
+          if (isNeededPixel(cLine.x1, cLine.y - 1)) {
+          // Ищем в том числе влево
+            nx1 = findLeftPixel(cLine.x1, cLine.y - 1);
+            nx2 = findRightPixel(cLine.x1, cLine.y - 1);
+            lineQueue.push({ x1: nx1, x2: nx2, y: cLine.y - 1 });
+          }
+
+          currx = nx2;
+          // Добираем недостающее, ищем только вправо, но пока не
+          // доползли так или иначе далее края текущей строки
+          while (cLine.x2 >= nx2 && currx <= cLine.x2 && currx < (cWidth - 1)) {
+            currx += 1;
+
+            if (isNeededPixel(currx, cLine.y - 1)) {
+            // Сохраняем найденный отрезок
+              nx1 = currx;
+              nx2 = findRightPixel(currx, cLine.y - 1);
+              lineQueue.push({ x1: nx1, x2: nx2, y: cLine.y - 1 });
+              // Прыгаем далее найденного
+              currx = nx2;
             }
- 
-            nx1 = cLine.x1;
-            nx2 = cLine.x1;
-            // Мо можно ли искать вниз?
-            if (cLine.y < (_cHeight - 1))
-            {
-                // Снизу строка может идти левее текущей?
-                if (isNeededPixel(cLine.x1, cLine.y + 1))
-                {
-                    // Ищем в том числе влево
-                    nx1 = findLeftPixel(cLine.x1, cLine.y + 1);
-                    nx2 = findRightPixel(cLine.x1, cLine.y + 1);
-                    lineQueue.push({x1: nx1, x2: nx2, y: cLine.y + 1});
-                }
- 
-                currx = nx2;
-                // Добираем недостающее, ищем только вправо, но пока не
-                // доползли так или иначе далее края текущей строки
-                while (cLine.x2 >= nx2 && currx <= cLine.x2 && currx < (_cWidth - 1))
-                {
-                    currx++;
- 
-                    if (isNeededPixel(currx, cLine.y + 1))
-                    {
-                        // Сохраняем найденный отрезок
-                        nx1 = currx;
-                        nx2 = findRightPixel(currx, cLine.y + 1);
-                        lineQueue.push({x1: nx1, x2: nx2, y: cLine.y + 1});
-                        // Прыгаем далее найденного
-                        currx = nx2;
-                    }
-                }
+          }
+        }
+
+        nx1 = cLine.x1;
+        nx2 = cLine.x1;
+        // Мо можно ли искать вниз?
+        if (cLine.y < (cHeight - 1)) {
+        // Снизу строка может идти левее текущей?
+          if (isNeededPixel(cLine.x1, cLine.y + 1)) {
+          // Ищем в том числе влево
+            nx1 = findLeftPixel(cLine.x1, cLine.y + 1);
+            nx2 = findRightPixel(cLine.x1, cLine.y + 1);
+            lineQueue.push({ x1: nx1, x2: nx2, y: cLine.y + 1 });
+          }
+
+          currx = nx2;
+          // Добираем недостающее, ищем только вправо, но пока не
+          // доползли так или иначе далее края текущей строки
+          while (cLine.x2 >= nx2 && currx <= cLine.x2 && currx < (cWidth - 1)) {
+            currx += 1;
+
+            if (isNeededPixel(currx, cLine.y + 1)) {
+            // Сохраняем найденный отрезок
+              nx1 = currx;
+              nx2 = findRightPixel(currx, cLine.y + 1);
+              lineQueue.push({ x1: nx1, x2: nx2, y: cLine.y + 1 });
+              // Прыгаем далее найденного
+              currx = nx2;
             }
- 
-        }   // while (main loop)
-    }
- 
+          }
+        }
+      } // while (main loop)
+    };
+
     /*
      * void floodFill(CanvasContext2D canvasContext, int x, int y)
      * Выполняет заливку на канве
@@ -428,34 +356,81 @@ function CanvasFloodFiller()
      * int x, y - координаты точки заливки
      * color - цвет заливки
      */
-    this.floodFill = function(canvasContext, x, y, color)
-    {
-        _cWidth = canvasContext.canvas.width;
-        _cHeight = canvasContext.canvas.height;
-        //debugger;
-        _nR = color.r;
-        _nG = color.g;
-        _nB = color.b;
-        _nA = color.a;
- 
-        var idata = canvasContext.getImageData(0, 0, _cWidth, _cHeight);
-        var pixels = idata.data;
-        _data = pixels;
- 
-        var toReplace = getDot(x, y);
-        _rR = toReplace.r;
-        _rG = toReplace.g;
-        _rB = toReplace.b;
-        _rA = toReplace.a;
- 
-        // Всё зависнет, если цвета совпадают
-        if (_rR == _nR && _rG == _nG && _rB == _nB && _rA == _nA){
-            return;
-        }
- 
-        effectiveFill(x, y);
- 
-        canvasContext.putImageData(idata, 0, 0);
-    }
+    this.floodFill = function (canvasContext, x, y, color) {
+      cWidth = canvasContext.canvas.width;
+      cHeight = canvasContext.canvas.height;
+      // debugger;
+      nR = color.r;
+      nG = color.g;
+      nB = color.b;
+      nA = color.a;
+
+      const idata = canvasContext.getImageData(0, 0, cWidth, cHeight);
+      const pixels = idata.data;
+      data = pixels;
+
+      const toReplace = getDot(x, y);
+      rR = toReplace.r;
+      rG = toReplace.g;
+      rB = toReplace.b;
+      rA = toReplace.a;
+
+      // Всё зависнет, если цвета совпадают
+      if (rR === nR && rG === nG && rB === nB && rA === nA) {
+        return;
+      }
+
+      effectiveFill(x, y);
+
+      canvasContext.putImageData(idata, 0, 0);
+    };
+  }
+
+  function getCurrentColorObj(color) {
+    return {
+      r: parseInt(color.slice(1, 3), 16),
+      g: parseInt(color.slice(3, 5), 16),
+      b: parseInt(color.slice(5, 7), 16),
+      a: 255,
+    };
+  }
+
+  const filler = new CanvasFloodFiller();
+  const rgbaColor = getCurrentColorObj(panel.currentColor);// rgba obj
+  // console.log(color)
+  // console.log(rgbaColor);
+  filler.floodFill(ctx, e.offsetX, e.offsetY, rgbaColor);
 }
-/*******************fill bucket*******************/
+
+/** *****************fill bucket****************** */
+
+/** *****************PANEL FUNCTIONS****************** */
+function getAction(e) {
+  switch (panel.activeTool) {
+    case 'pencil': return draw(e);
+    case 'picker': return changeColorWithPicker(e);
+    case 'fill': return fill(e);
+    default: break;
+  }
+  return true;
+}
+
+/** *****************MOUSE ACTIONS****************** */
+function mousedown(e) {
+  mouseIsDown = true;
+  // x0 = e.offsetX;
+  // y0 = e.offsetY;
+  getAction(e);
+}
+
+function mousemove(e) {
+  if (!mouseIsDown) return;
+  getAction(e);
+}
+/** *****************MOUSE ACTIONS****************** */
+
+/** *****************LISTENERS****************** */
+document.getElementById('canvas').addEventListener('mousemove', mousemove);
+document.getElementById('canvas').addEventListener('mousedown', mousedown);
+document.getElementById('canvas').addEventListener('mouseup', clearmouse);
+document.getElementById('canvas').addEventListener('mouseout', clearmouse);
