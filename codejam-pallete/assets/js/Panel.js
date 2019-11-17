@@ -21,7 +21,7 @@ class Panel{
         this.prevColor=localStorage.getItem("prevColor");
         document.getElementById("currentColor").value=this.currentColor;
         document.getElementById("prevColor").value=this.prevColor;
-        console.log("set prev to "+ this.prevColor);
+        //console.log("set prev to "+ this.prevColor);
 
         this.setStorageTool();
         this.addActiveTool();
