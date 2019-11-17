@@ -3,51 +3,61 @@ let pixel_size=128;
 let mouseIsDown=false;
 let mouseFirstAction=true;
 let x0=x1=y0=y1=null;
+let canvasSize; //4x4, 16x16 - single number
+let sizes=[4,8,16,32,64,128,256,512];
+
+
+window.onbeforeunload = function () {
+    localStorage.setItem("canvasImage", this.canvas.toDataURL());
+    localStorage.setItem("canvasSize", canvasSize);
+};
+
+
 
 let canvas=document.getElementById('canvas');
 let ctx=canvas.getContext('2d');
+clearCanvas();
 
-drawbackground(frame_4x4, false); //default picture
-
-function drawbackground(frame, isImage){
-    // let canvas=document.getElementById('canvas');
+function clearCanvas(){
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    //canvas_length=512; //width and height of canvas for calculate item
-    
-    if(canvas.getContext){
-    //   var ctx=canvas.getContext('2d');
-      if (isImage){        
-          ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); 
-      }else{
-        pixel_size=canvas_length/frame.length;
-        console.log("Pixel size is "+pixel_size);
-          frame.forEach((row, i) => {
-              row.forEach((column, j)=>{
-              if (frame[0][0].length==4){
-                  ctx.fillStyle="rgba("+column[0]+","+column[1]+","+column[2]+","+column[3]/255+")";
-              }else{
-                  ctx.fillStyle="#"+column;
-              }
-              ctx.fillRect(i*pixel_size, j*pixel_size, pixel_size, pixel_size);
-              })
-          });
-        }
-    }
-    ctx.fillStyle=panel.currentColor;
+    //localStorage.removeItem("canvasImage");
 }
 
-function paint(type, frame){
-    pixel_size=16;
-    if (type=="image"){
-        var img = new Image();
-        img.src = '../codejam-pallete/assets/data/image.png';
-        // console.log(img.src);
-        img.addEventListener("load", function() {
-          drawbackground(img, true);
-        });
-    }else if(type=="frame"){
-        drawbackground(frame, false);
+//getSize
+canvasSize=localStorage.getItem("canvasSize")
+if (canvasSize==null){
+    canvasSize=4;
+}
+
+//get image from localStorage
+if(localStorage.getItem("canvasImage")){
+    let dataURL = localStorage.getItem("canvasImage");
+    let img = new Image;
+    img.src = dataURL;
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+    };
+}
+
+setCanvas(canvasSize);
+
+function setCanvas(size){
+    console.log(size);
+    canvasSize=size;
+    pixel_size=canvas_length/canvasSize;
+
+    activeSize();
+}
+
+function activeSize(){
+    for (let i=0; i<sizes.length; i++){
+        if(sizes[i]-canvasSize==0){
+            document.getElementsByClassName("panel_item_size")[i].classList.add("active");
+        }else{
+            document.getElementsByClassName("panel_item_size")[i].classList.remove("active");
+
+        }
     }
 }
 
@@ -86,6 +96,9 @@ function clearmouse(){
     y0=null;
     y1=null;
     mouseFirstAction=true;
+    // if (panel.activeTool=="paint"){
+    //     localStorage.setItem(canvasName, canvas.toDataURL());
+    // }
 }
 /*******************KEYBOARD FUNCTIONS*******************/
 function selectTool(e){
@@ -101,7 +114,7 @@ function selectTool(e){
 }
 /*******************PANEL FUNCTIONS*******************/
 function getAction(e){
-    switch(panel.activetool){
+    switch(panel.activeTool){
         case "pencil": return draw(e);
         break;
         case "picker": return changeColorWithPicker(e);
@@ -374,7 +387,7 @@ function CanvasFloodFiller()
  
             nx1 = cLine.x1;
             nx2 = cLine.x1;
-            // Те же яйца, но можно ли искать вниз?
+            // Мо можно ли искать вниз?
             if (cLine.y < (_cHeight - 1))
             {
                 // Снизу строка может идти левее текущей?

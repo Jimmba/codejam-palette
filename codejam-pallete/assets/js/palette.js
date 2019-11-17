@@ -17,8 +17,8 @@ function keyboardChangeTool(key){
 
 function changeTool(key){
     //console.log(key);
-    panel.removetool=panel.activetool;
-    panel.activetool=key;
+    panel.removeTool=panel.activeTool;
+    panel.activeTool=key;
     panel.setStorageTool();
     panel.removeActiveTool();
     panel.addActiveTool();
